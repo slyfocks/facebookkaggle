@@ -8,22 +8,36 @@ def ngramcount():
         keys = stuff.keys()
         counts = {}
         for key in keys:
-            print(keys)
             cnt = Counter()
             words = stuff[key]
             for word in words:
                 cnt[word] += 1
             counts[key] = cnt
-            print(cnt)
-        with open('tagwordcounts.json', 'w') as write:
+        with open('tagwordcount.json', 'w') as write:
             ujson.dump(counts, write)
 
 
-def readwordcounts():
+def pythoncounttest():
     with open('tagwordcounts.json') as file:
         stuff = ujson.load(file)
         pythonwords = stuff['python']
         sortedpython = sorted(pythonwords.items(), key=lambda x: x[1], reverse=True)
-        print(sortedpython)
+    return sortedpython
 
-readwordcounts()
+
+#count the instances of each word among all tags
+def globalwordcount():
+    with open('tagwordcounts.json', 'r') as file:
+        stuff = ujson.load(file)
+        wordcounts = stuff.values()
+        cnt = Counter()
+        for dicts in wordcounts:
+            for word, count in dicts.items():
+                cnt[word] += count
+        with open('wordcount1000.json', 'w') as write:
+            ujson.dump(cnt, write)
+
+
+
+
+globalwordcount()
