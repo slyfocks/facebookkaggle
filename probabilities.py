@@ -1,5 +1,5 @@
 import ujson
-
+from functools import reduce
 
 def writeptag():
     with open('tags.json') as file:
@@ -60,13 +60,19 @@ def pwordgiventag(tags):
 
 #in the form of P(tag|words)
 def bayes(tags, words):
+    postdict = pwordgiventag(tags)
     for tag in tags:
         posteriors = {}
         posteriors[tag] = 0
+        #count number of words that have been associated with given tag in training set
+        i = 0
+        posterior = 1
         for word in words:
-            try
-    posterior = pwordgiventag(tags)[word]
+            try:
+                #updates posterior probability of words|tag naively
+                posterior *= postdict[tag][word]
+                i += 1
+            except KeyError:
+                continue
+        posteriors[tag] = posterior
     return
-
-#print(ptag(['c#'])*pwordgiventag(['c#'])['code']/pword(['code']))
-print(pwordgiventag(['c#'])[])
