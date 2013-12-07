@@ -39,22 +39,34 @@ def writepwordgiventag():
             ujson.dump(pwordtagdict, write)
 
 
-#return prior probability of tag
-def ptag(tag):
+#return prior probability of tags
+def ptag(tags):
     with open('ptags1000.json', 'r') as file:
-        stuff = ujson.load(file)
-    return stuff[tag]
+        ptagdict = ujson.load(file)
+    return {tag: ptagdict[tag] for tag in tags}
 
 
-def pword(word):
+def pword(words):
     with open('pwords1000.json', 'r') as file:
-        stuff = ujson.load(file)
-    return stuff[word]
+        pworddict = ujson.load(file)
+    return {word: pworddict[word] for word in words}
 
 
-def pwordgiventag(tag):
+def pwordgiventag(tags):
     with open('wordgiventag1000.json', 'r') as file:
-        stuff = ujson.load(file)
-    return stuff[tag]
+        postprobs = ujson.load(file)
+    return {tag: postprobs[tag] for tag in tags}
 
-print(pword('python'))
+
+#in the form of P(tag|words)
+def bayes(tags, words):
+    for tag in tags:
+        posteriors = {}
+        posteriors[tag] = 0
+        for word in words:
+            try
+    posterior = pwordgiventag(tags)[word]
+    return
+
+#print(ptag(['c#'])*pwordgiventag(['c#'])['code']/pword(['code']))
+print(pwordgiventag(['c#'])[])
