@@ -36,8 +36,3 @@ def globalwordcount():
                 cnt[word] += count
         with open('wordcount1000.json', 'w') as write:
             ujson.dump(cnt, write)
-
-
-
-
-globalwordcount()
