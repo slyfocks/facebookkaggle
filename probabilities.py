@@ -39,9 +39,22 @@ def writepwordgiventag():
             ujson.dump(pwordtagdict, write)
 
 
+#return prior probability of tag
+def ptag(tag):
+    with open('ptags1000.json', 'r') as file:
+        stuff = ujson.load(file)
+    return stuff[tag]
+
+
+def pword(word):
+    with open('pwords1000.json', 'r') as file:
+        stuff = ujson.load(file)
+    return stuff[word]
+
+
 def pwordgiventag(tag):
     with open('wordgiventag1000.json', 'r') as file:
         stuff = ujson.load(file)
     return stuff[tag]
 
-print(sorted(pwordgiventag('python').items(), key=lambda x: x[1], reverse=True)[:100])
+print(pword('python'))
