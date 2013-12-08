@@ -1,4 +1,5 @@
 import ujson
+import math
 from functools import reduce
 
 def writeptag():
@@ -46,10 +47,10 @@ def ptag(tags):
     return {tag: ptagdict[tag] for tag in tags}
 
 
-def pword(words):
+def pword():
     with open('pwords1000.json', 'r') as file:
         pworddict = ujson.load(file)
-    return {word: pworddict[word] for word in words}
+    return pworddict
 
 
 def pwordgiventag(tags):
@@ -58,21 +59,43 @@ def pwordgiventag(tags):
     return {tag: postprobs[tag] for tag in tags}
 
 
-#in the form of P(tag|words)
-def bayes(tags, words):
+#in the form of P(tags|words) where tags and wordgroups are lists of lists of words
+def bayes(tags, wordgroups):
     postdict = pwordgiventag(tags)
-    for tag in tags:
-        posteriors = {}
-        posteriors[tag] = 0
-        #count number of words that have been associated with given tag in training set
-        i = 0
-        posterior = 1
-        for word in words:
-            try:
-                #updates posterior probability of words|tag naively
-                posterior *= postdict[tag][word]
-                i += 1
-            except KeyError:
-                continue
-        posteriors[tag] = posterior
-    return
+    ptagdict = ptag(tags)
+    pworddict = pword()
+    probability = {}
+    #index words in wordgroups
+    id = 0
+    for words in wordgroups:
+        probability[id] = {}
+        for tag in tags:
+            probability[id][tag] = 0
+            #count number of words that have been associated with given tag in training set
+            i = 0
+            posterior = 1
+            bayesratio = 1
+            for word in words:
+                try:
+                    priorword = pworddict[word]
+                except KeyError:
+                    #if this throws an error, the next statement also will, so break
+                    break
+                try:
+                    #updates posterior probability of words|tag naively
+                    posterior = postdict[tag][word]
+                    bayesratio *= posterior/priorword
+                    i += 1
+                except KeyError:
+                    continue
+            if i != 0:
+                bayesratio = math.pow(posterior, 1/i)
+            else:
+                bayesratio = 0
+            priortag = ptagdict[tag]
+            print(posterior, priortag, priorword, i)
+            probability[id][tag] = bayesratio*priortag
+        id += 1
+    return probability
+
+print(bayes(['python', 'c#', 'android'], [['code', 'python'], ['monkey']]))
