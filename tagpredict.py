@@ -12,32 +12,36 @@ def tagsover(n):
                 for i, j in tagdata.items() if j >= n]
     return tags
 
-'''if __name__ == "__main__":
-    with open('probabilitiestrain.json') as readfile:
+
+def chosentags():
+    with open('probabilities.json') as readfile:
         stuff = ujson.load(readfile)
-        print(sorted(stuff['6860135'].items(), key=lambda x: x[1], reverse=True)[:10])'''
+        print(stuff['6034221'])
 
 
-if __name__ == "__main__":
+def writetags():
     tag_list = tagsover(400)
     with open('wordgroup400plus.json', 'r') as readfile:
         idworddict = ujson.load(readfile)
-        wordgroups = list(idworddict.values())
+        wordgroups = list(idworddict.values())[:100]
         probabilities = bayes(tag_list, wordgroups)
         with open('probabilities.json', 'w') as write:
             ujson.dump(probabilities, write)
-
+#writetags()
+chosentags()
 '''if __name__ == "__main__":
     with open('Test.csv') as csvfile:
         csvreader = csv.reader(csvfile)
         data_dict = {}
         tags = tagsover(400)
+        stopwords = ['at', 'an' 'which', 'on', 'in', 'the', 'is', 'are',
+                     'of', 'my', 'from', 'a', 'or', 'and', 'for']
         for row in csvreader:
             id = row[0]
             print(id)
             words = set(str(row[1]).lower().replace('"', '')
                         .replace('.', '').replace(';', '').replace(',', '')
                         .replace('?', '').replace(';', '').replace(':', '').split())
-            data_dict[id] = words
+            data_dict[id] = [word for word in words if word not in stopwords]
         with open('wordgroup400plus.json', 'w') as write:
             ujson.dump(data_dict, write)'''
