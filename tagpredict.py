@@ -53,6 +53,6 @@ def create_submission():
         csvwriter = csv.writer(submission)
         csvwriter.writerow("\"Id\",\"Tags\"")
         for id in range(6034196, 8047533):
-            csvwriter.writerow(str(id) + ',' + tagdict[str(id)][0])
+            csvwriter.writerow([str(id), tagdict[str(id)][0]])
             print(id)
 create_submission()
