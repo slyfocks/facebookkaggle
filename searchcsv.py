@@ -3,7 +3,7 @@ import ujson
 with open('tags.json') as file:
     data = ujson.load(file)
 freq_tags = [i.replace('.', '').replace(',', '').replace('?', '').replace(';', '')
-              .replace(':', '').replace('"', '') for i, j in data.items() if j >= 1000]
+              .replace(':', '').replace('"', '') for i, j in data.items() if 10000 > j >= 5000]
 data_dict = {}
 print(len(freq_tags))
 with open('/home/buzzybee/facebookrecruit/Train.csv', newline='') as csvfile:
@@ -18,14 +18,14 @@ with open('/home/buzzybee/facebookrecruit/Train.csv', newline='') as csvfile:
     for row in filereader:
         print(i)
         i += 1
-        for ngram in set(freq_tags):
-            if ngram in set(str(row[3]).lower().replace('"', '').replace('.', '')
-                                       .replace(',', '').replace('?', '').replace(';', '')
-                                       .replace(':', '').split()):
+        for tag in set(str(row[3]).lower().replace('"', '').replace('.', '')
+                                  .replace(',', '').replace('?', '').replace(';', '')
+                                  .replace(':', '').split()):
+            if tag in freq_tags:
                 for word in set(str(row[2]).lower().replace('"', '').replace('.', '')
                                            .replace(';', '').replace(',', '').replace('?', '')
                                            .replace(';', '').replace(':', '').split()):
                     if word not in stopwords:
-                        data_dict[ngram].append(word)
-with open('bodytagcount1000plus.json', 'w') as file:
+                        data_dict[tag].append(word)
+with open('bodytagcount5000to10000.json', 'w') as file:
     ujson.dump(data_dict, file)
