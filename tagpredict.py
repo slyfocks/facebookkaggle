@@ -1,4 +1,3 @@
-import csv
 import ujson
 from probabilities import bayes
 
@@ -47,12 +46,12 @@ def writetags():
         with open('wordgroup400plus.json', 'w') as write:
             ujson.dump(data_dict, write)'''
 
+
 def create_submission():
     with open('submission.csv', 'w') as submission:
         tagdict = chosentags()
-        csvwriter = csv.writer(submission)
-        csvwriter.writerow("\"Id\",\"Tags\"")
+        submission.write(','.join(['"Id"', '"Tags"']) + "\n")
         for id in range(6034196, 8047533):
-            csvwriter.writerow([str(id), tagdict[str(id)][0]])
+            submission.write(','.join([str(id), "\"" + str(tagdict[str(id)][0]) + "\""]) + "\n")
             print(id)
 create_submission()
