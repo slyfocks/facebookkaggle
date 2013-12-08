@@ -16,18 +16,19 @@ def tagsover(n):
 def chosentags():
     with open('probabilities.json') as readfile:
         stuff = ujson.load(readfile)
-        print(stuff['6034221'])
+        print(list(stuff['6034196']))
 
 
 def writetags():
     tag_list = tagsover(400)
     with open('wordgroup400plus.json', 'r') as readfile:
         idworddict = ujson.load(readfile)
-        wordgroups = list(idworddict.values())[:100]
+        #makes sure wordgroups are in correct order because dictionaries are unordered
+        wordgroups = [v for k, v in sorted(idworddict.items())][:100]
         probabilities = bayes(tag_list, wordgroups)
         with open('probabilities.json', 'w') as write:
             ujson.dump(probabilities, write)
-#writetags()
+writetags()
 chosentags()
 '''if __name__ == "__main__":
     with open('Test.csv') as csvfile:
