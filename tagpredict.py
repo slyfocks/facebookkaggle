@@ -16,7 +16,7 @@ def tagsover(n):
 def chosentags():
     with open('probabilities.json') as readfile:
         stuff = ujson.load(readfile)
-        print(list(stuff['6034196']))
+        return stuff
 
 
 def writetags():
@@ -24,12 +24,12 @@ def writetags():
     with open('wordgroup400plus.json', 'r') as readfile:
         idworddict = ujson.load(readfile)
         #makes sure wordgroups are in correct order because dictionaries are unordered
-        wordgroups = [v for k, v in sorted(idworddict.items())][:100]
+        wordgroups = [v for k, v in sorted(idworddict.items())]
         probabilities = bayes(tag_list, wordgroups)
         with open('probabilities.json', 'w') as write:
             ujson.dump(probabilities, write)
-writetags()
-chosentags()
+#writetags()
+#chosentags()
 '''if __name__ == "__main__":
     with open('Test.csv') as csvfile:
         csvreader = csv.reader(csvfile)
@@ -46,3 +46,13 @@ chosentags()
             data_dict[id] = [word for word in words if word not in stopwords]
         with open('wordgroup400plus.json', 'w') as write:
             ujson.dump(data_dict, write)'''
+
+def create_submission():
+    with open('submission.csv', 'w') as submission:
+        tagdict = chosentags()
+        csvwriter = csv.writer(submission)
+        csvwriter.writerow("\"Id\",\"Tags\"")
+        for id in range(6034196, 8047533):
+            csvwriter.writerow(str(id) + ',' + tagdict[str(id)][0])
+            print(id)
+create_submission()
