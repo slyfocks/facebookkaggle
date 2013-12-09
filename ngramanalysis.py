@@ -50,15 +50,10 @@ def combine_dicts():
 
 #deletes words that appear less than n times to save memory
 def delete_below(n):
-    with open('bodytag30000to450000plus.json') as file:
+    with open('pbodywords200plus.json') as file:
         boop = ujson.load(file)
-        newdict = {}
-        for tag in boop.keys():
-            newdict[tag] = {}
-            for word in boop[tag].keys():
-                if int(boop[tag][word]) > n:
-                    newdict[tag][word] = boop[tag][word]
+        newdict = {word: boop[word] for word in boop.keys() if int(boop[word]) > n}
         with open('bodytag30000to450000plusover2.json', 'w') as write:
             ujson.dump(newdict, write)
 
-globalwordcount()
+delete_below(1)
