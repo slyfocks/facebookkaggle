@@ -16,53 +16,53 @@ def writeptag():
         tagdata = ujson.load(file)
         freq_tags = {i.replace('.', '').replace(',', '').replace('?', '')
                      .replace(';', '').replace(':', '').replace('"', ''): j
-                     for i, j in tagdata.items() if j >= 400}
+                     for i, j in tagdata.items() if j >= 200}
         total_count = sum(freq_tags.values())
         probs = {word: value/total_count for word, value in freq_tags.items()}
-        with open('ptags400plus.json', 'w') as write:
+        with open('ptags200plus.json', 'w') as write:
             ujson.dump(probs, write)
 
 
 def writepwords():
-    with open('wordcount400plus.json', 'r') as file:
+    with open('wordcount200plus.json', 'r') as file:
         stuff = ujson.load(file)
         total_count = sum(stuff.values())
         #takes individual word totals and divides them by global total to compute probability for each word
         probs = {word: value/total_count for word, value in stuff.items()}
-        with open('pwords400plus.json', 'w') as write:
+        with open('pwords200plus.json', 'w') as write:
             ujson.dump(probs, write)
 
 
 def writepwordgiventag():
-    with open('tagwordcount400plus.json', 'r') as file:
+    with open('tagwordcount200.json', 'r') as file:
         stuff = ujson.load(file)
         pwordtagdict = {}
-        tagdict = tagsover(400)
+        tagdict = tagsover(200)
         for tag in stuff.keys():
             #dictionary of words and counts for particular tag
             worddict = stuff[tag]
             total_count = tagdict[tag]
             probdict = {word: value/total_count for word, value in worddict.items()}
             pwordtagdict[tag] = probdict
-    with open('wordgiventag400plus.json', 'w') as write:
+    with open('wordgiventag200plus.json', 'w') as write:
         ujson.dump(pwordtagdict, write)
 
 
 #return prior probability of tags
 def ptag(tags):
-    with open('ptags400plus.json', 'r') as file:
+    with open('ptags200plus.json', 'r') as file:
         ptagdict = ujson.load(file)
     return {tag: ptagdict[tag] for tag in tags}
 
 
 def pword():
-    with open('pwords400plus.json', 'r') as file:
+    with open('pwords200plus.json', 'r') as file:
         pworddict = ujson.load(file)
     return pworddict
 
 
 def pwordgiventag(tags):
-    with open('wordgiventag400plus.json', 'r') as file:
+    with open('wordgiventag200plus.json', 'r') as file:
         postprobs = ujson.load(file)
     return {tag: postprobs[tag] for tag in tags}
 
@@ -78,6 +78,9 @@ def bayes(tags, wordgroups):
     id = 6034196
     for words in wordgroups:
         probability[id] = []
+        #two tags chosen for now
+        maxbayesratio = [0, 0]
+        maxtags = ['', '']
         for tag in tags:
             #count number of words that have been associated with given tag in training set
             #i = 0
@@ -93,10 +96,15 @@ def bayes(tags, wordgroups):
                     #updates posterior probability of words|tag naively
                     posterior = postdict[tag][word]
                     bayesratio = posterior/priorword
+                    scaledbayes = bayesratio*priortag**0.9
                     #i += 1
                     #for a safer predictor that weights tag commonality more heavily, increase exponent
-                    if bayesratio*priortag**1.2 >= 0.5:
-                        probability[id].append(tag)
+                    if max(maxbayesratio) > scaledbayes > min(maxbayesratio):
+                        maxbayesratio = [max(maxbayesratio), scaledbayes]
+                        maxtags = [maxtags[0], tag]
+                    elif scaledbayes > max(maxbayesratio):
+                        maxbayesratio = [max(maxbayesratio), scaledbayes]
+                        maxtags = [tag, maxtags[0]]
                 except KeyError:
                     continue
             '''if i != 0:
@@ -104,8 +112,10 @@ def bayes(tags, wordgroups):
             else:
                 bayesratio = 0
             probability[id][tag] = bayesratio*priortag'''
-        probability[id] = set(probability[id])
+        probability[id] = set([tag for tag in maxtags])
         id += 1
         print(id)
     return probability
-print(bayes(list(tagsover(400).keys()), [['getting', 'rid', 'site-specific', 'hotkeys'], ['html']]))
+'''print(bayes(list(tagsover(400).keys()),
+            [['getting', 'rid', 'site-specific', 'hotkeys'],
+             ['html'], ['will', 'php', 'included', 'html', 'content', 'seo']]))'''
