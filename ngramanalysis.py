@@ -28,21 +28,37 @@ def pythoncounttest():
 
 #count the instances of each word among all tags
 def globalwordcount():
-    with open('bodytag30000to450000plus.json', 'r') as file:
+    with open('bodytag8000toinfinityover2.json', 'r') as file:
         stuff = ujson.load(file)
         wordcounts = stuff.values()
         cnt = Counter()
         for dicts in wordcounts:
             for word, count in dicts.items():
                 cnt[word] += count
-        with open('wordcount30000to450000plusglobal.json', 'w') as write:
+        with open('globalwordcount8000toinfinityover2.json', 'w') as write:
             ujson.dump(cnt, write)
 
 
 def combine_dicts():
-    with open('bodytagwordcounts200.json') as tag200,open('bodytagwordcounts1500.json') as tag1500:
+    with open('bodytag8000to30000over2.json') as tag200, open('bodytag30000to450000plusover2.json') as tag1500:
         tag200dict = ujson.load(tag200)
         tag500dict = ujson.load(tag1500)
         newdict = dict(chain(tag200dict.items(), tag500dict.items()))
-        with open('bodytagwordcount200plus.json', 'w') as write:
+        with open('bodytag8000toinfinityover2.json', 'w') as write:
             ujson.dump(newdict, write)
+
+
+#deletes words that appear less than n times to save memory
+def delete_below(n):
+    with open('bodytag30000to450000plus.json') as file:
+        boop = ujson.load(file)
+        newdict = {}
+        for tag in boop.keys():
+            newdict[tag] = {}
+            for word in boop[tag].keys():
+                if int(boop[tag][word]) > n:
+                    newdict[tag][word] = boop[tag][word]
+        with open('bodytag30000to450000plusover2.json', 'w') as write:
+            ujson.dump(newdict, write)
+
+globalwordcount()
