@@ -1,5 +1,6 @@
 import ujson
 import math
+from collections import Counter
 
 
 def tagsover(n):
@@ -12,37 +13,34 @@ def tagsover(n):
 
 
 def writeptag():
-    with open('tags.json') as file:
-        tagdata = ujson.load(file)
-        freq_tags = tagsover(200)
-        total_count = sum(freq_tags.values())
-        probs = {word: value/total_count for word, value in freq_tags.items()}
-        with open('ptags200plus.json', 'w') as write:
-            ujson.dump(probs, write)
+    freq_tags = tagsover(100)
+    total_count = sum(freq_tags.values())
+    probs = {word: value/total_count for word, value in freq_tags.items()}
+    with open('ptags100plus.json', 'w') as write:
+        ujson.dump(probs, write)
 
 
 def writepwords():
-    with open('globalwordcount8000toinfinityover2.json', 'r') as file:
+    with open('globalwordcountover10.json', 'r') as file:
         stuff = ujson.load(file)
         total_count = sum(stuff.values())
         #takes individual word totals and divides them by global total to compute probability for each word
         probs = {word: value/total_count for word, value in stuff.items()}
-        with open('pbodywords8000toinfinity.json', 'w') as write:
+        with open('pbodywordsover10.json', 'w') as write:
             ujson.dump(probs, write)
 
 
 def writepwordgiventag():
-    with open('bodytagsover100.json', 'r') as file:
+    with open('bodytagsover10.json', 'r') as file:
         stuff = ujson.load(file)
         pwordtagdict = {}
-        tagdict = tagsover(200)
         for tag in stuff.keys():
             #dictionary of words and counts for particular tag
             worddict = stuff[tag]
-            total_count = tagdict[tag]
+            total_count = sum(worddict.values())
             probdict = {word: value/total_count for word, value in worddict.items()}
             pwordtagdict[tag] = probdict
-    with open('bodywordgiventagover100.json', 'w') as write:
+    with open('bodywordgiventagover10.json', 'w') as write:
         ujson.dump(pwordtagdict, write)
 
 
@@ -54,15 +52,15 @@ def ptag(tags):
 
 
 def pword():
-    with open('pwords200plus.json', 'r') as file:
+    with open('pbodywordsover10.json', 'r') as file:
         pworddict = ujson.load(file)
     return pworddict
 
 
 def pwordgiventag(tags):
-    with open('bodywordgiventagover100.json', 'r') as file:
+    with open('bodywordgiventagover10.json', 'r') as file:
         postprobs = ujson.load(file)
-    return {tag: postprobs[tag] for tag in tags}
+    return postprobs
 
 
 #in the form of P(tags|words) where tags and wordgroups is a list of lists of words
@@ -70,7 +68,7 @@ def pwordgiventag(tags):
 def bayes(tags, wordgroups):
     postdict = pwordgiventag(tags)
     ptagdict = ptag(tags)
-    #pworddict = pword()
+    pworddict = pword()
     probability = {}
     #index words in wordgroups
     id = 6034196
@@ -81,18 +79,20 @@ def bayes(tags, wordgroups):
         maxtags = ['', '']
         for tag in tags:
             posterior = 1
+            i = 0
             priortag = ptagdict[tag]
             for word in words:
                 try:
                     #updates posterior probability of words|tag naively
-                    posterior *= postdict[tag][word]
+                    posterior *= postdict[tag][word]/pworddict[word]
+                    i += 1
                 except KeyError:
                     continue
                     #for a safer predictor that weights tag commonality more heavily, increase exponent
             if posterior == 1:
                 bayesprob = 0
             else:
-                bayesprob = priortag*posterior
+                bayesprob = priortag*math.pow(posterior, (1/i))
             if max(maxbayesratio) > bayesprob > min(maxbayesratio):
                 maxbayesratio = [max(maxbayesratio), bayesprob]
                 maxtags = [maxtags[0], tag]
@@ -106,5 +106,3 @@ def bayes(tags, wordgroups):
 '''print(bayes(list(tagsover(400).keys()),
             [['getting', 'rid', 'site-specific', 'hotkeys'],
              ['html'], ['will', 'php', 'included', 'html', 'content', 'seo']]))'''
-#writepwordgiventag()
-#print(pwordgiventag(['lua']))
