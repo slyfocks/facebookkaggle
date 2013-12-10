@@ -5,7 +5,7 @@ import math
 def tagsover(n):
     with open('tags.json') as file:
         tagdata = ujson.load(file)
-        tags = {i.replace('.', '').replace(',', '').replace('?', '')
+        tags = {i.replace(',', '').replace('?', '')
                 .replace(';', '').replace(':', '').replace('"', ''): j
                 for i, j in tagdata.items() if j >= n}
     return tags
@@ -14,9 +14,7 @@ def tagsover(n):
 def writeptag():
     with open('tags.json') as file:
         tagdata = ujson.load(file)
-        freq_tags = {i.replace('.', '').replace(',', '').replace('?', '')
-                     .replace(';', '').replace(':', '').replace('"', ''): j
-                     for i, j in tagdata.items() if j >= 200}
+        freq_tags = tagsover(200)
         total_count = sum(freq_tags.values())
         probs = {word: value/total_count for word, value in freq_tags.items()}
         with open('ptags200plus.json', 'w') as write:
@@ -24,17 +22,17 @@ def writeptag():
 
 
 def writepwords():
-    with open('wordcount200plus.json', 'r') as file:
+    with open('globalwordcount8000toinfinityover2.json', 'r') as file:
         stuff = ujson.load(file)
         total_count = sum(stuff.values())
         #takes individual word totals and divides them by global total to compute probability for each word
         probs = {word: value/total_count for word, value in stuff.items()}
-        with open('pwords200plus.json', 'w') as write:
+        with open('pbodywords8000toinfinity.json', 'w') as write:
             ujson.dump(probs, write)
 
 
 def writepwordgiventag():
-    with open('tagwordcount200.json', 'r') as file:
+    with open('bodytagsover100.json', 'r') as file:
         stuff = ujson.load(file)
         pwordtagdict = {}
         tagdict = tagsover(200)
@@ -44,7 +42,7 @@ def writepwordgiventag():
             total_count = tagdict[tag]
             probdict = {word: value/total_count for word, value in worddict.items()}
             pwordtagdict[tag] = probdict
-    with open('wordgiventag200plus.json', 'w') as write:
+    with open('bodywordgiventagover100.json', 'w') as write:
         ujson.dump(pwordtagdict, write)
 
 
@@ -62,17 +60,17 @@ def pword():
 
 
 def pwordgiventag(tags):
-    with open('wordgiventag200plus.json', 'r') as file:
+    with open('bodywordgiventagover100.json', 'r') as file:
         postprobs = ujson.load(file)
     return {tag: postprobs[tag] for tag in tags}
 
 
-#in the form of P(tags|words) where tags and wordgroups are lists of lists of words
+#in the form of P(tags|words) where tags and wordgroups is a list of lists of words
 #doesn't give reasonable probabilities in absolute terms, but only relative probability matters here
 def bayes(tags, wordgroups):
     postdict = pwordgiventag(tags)
     ptagdict = ptag(tags)
-    pworddict = pword()
+    #pworddict = pword()
     probability = {}
     #index words in wordgroups
     id = 6034196
@@ -82,36 +80,25 @@ def bayes(tags, wordgroups):
         maxbayesratio = [0, 0]
         maxtags = ['', '']
         for tag in tags:
-            #count number of words that have been associated with given tag in training set
-            #i = 0
-            #bayesratio = 1
+            posterior = 1
             priortag = ptagdict[tag]
             for word in words:
                 try:
-                    priorword = pworddict[word]
-                except KeyError:
-                    #if this throws an error, the next statement also will, so break
-                    break
-                try:
                     #updates posterior probability of words|tag naively
-                    posterior = postdict[tag][word]
-                    bayesratio = posterior/priorword
-                    scaledbayes = bayesratio*priortag**0.9
-                    #i += 1
-                    #for a safer predictor that weights tag commonality more heavily, increase exponent
-                    if max(maxbayesratio) > scaledbayes > min(maxbayesratio):
-                        maxbayesratio = [max(maxbayesratio), scaledbayes]
-                        maxtags = [maxtags[0], tag]
-                    elif scaledbayes > max(maxbayesratio):
-                        maxbayesratio = [max(maxbayesratio), scaledbayes]
-                        maxtags = [tag, maxtags[0]]
+                    posterior *= postdict[tag][word]
                 except KeyError:
                     continue
-            '''if i != 0:
-                bayesratio = math.pow(bayesratio, 1/i)
+                    #for a safer predictor that weights tag commonality more heavily, increase exponent
+            if posterior == 1:
+                bayesprob = 0
             else:
-                bayesratio = 0
-            probability[id][tag] = bayesratio*priortag'''
+                bayesprob = priortag*posterior
+            if max(maxbayesratio) > bayesprob > min(maxbayesratio):
+                maxbayesratio = [max(maxbayesratio), bayesprob]
+                maxtags = [maxtags[0], tag]
+            elif bayesprob > max(maxbayesratio):
+                maxbayesratio = [max(maxbayesratio), bayesprob]
+                maxtags = [tag, maxtags[0]]
         probability[id] = set([tag for tag in maxtags])
         id += 1
         print(id)
@@ -119,3 +106,5 @@ def bayes(tags, wordgroups):
 '''print(bayes(list(tagsover(400).keys()),
             [['getting', 'rid', 'site-specific', 'hotkeys'],
              ['html'], ['will', 'php', 'included', 'html', 'content', 'seo']]))'''
+#writepwordgiventag()
+#print(pwordgiventag(['lua']))
