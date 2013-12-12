@@ -10,7 +10,7 @@ def tagsover(n):
         tags = [i.replace(',', '').replace('?', '')
                 .replace(';', '').replace(':', '').replace('"', '')
                 for i, j in tagdata.items() if j >= n]
-    return tags
+    return set(tags)
 
 
 def tagsbetween(a, b):
@@ -39,8 +39,13 @@ def writetags():
     with open('titlewordgroup.json') as file:
         filedict = ujson.load(file)
         #makes sure wordgroups are in correct order because dictionaries are unordered
-        wordgroups = [v for k, v in sorted(filedict.items())][100:1000]
-        bayes(tag_list, wordgroups)
+        wordgroups = [v for k, v in sorted(filedict.items())]
+        bayes(tag_list, wordgroups, 0, 300000)
+        bayes(tag_list, wordgroups, 300000, 600000)
+        bayes(tag_list, wordgroups, 600000, 900000)
+        bayes(tag_list, wordgroups, 900000, 1200000)
+        bayes(tag_list, wordgroups, 1200000, 1500000)
+        bayes(tag_list, wordgroups, 1500000, 1800000)
 writetags()
 #print(chosentags()['6034218'])
 '''if __name__ == "__main__":
@@ -56,7 +61,7 @@ writetags()
                          'code', 'over', 'under', 'move', 'remove']
             worddict = {}
             for i, row in enumerate(csvreader):
-                words = set(str(row[2]).lower().replace('"', '')
+                words = set(str(row[1]).lower().replace('"', '')
                             .replace('.', '').replace(';', '').replace(',', '')
                             .replace('?', '').replace(';', '').replace(':', '').split())
                 worddict[row[0]] = [word for word in words if word not in stopwords and word in bodywords]
