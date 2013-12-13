@@ -69,13 +69,11 @@ def bayes(tags, wordgroups, start, end):
     postdict = pwordgiventag(tags)
     ptagdict = ptag(tags)
     pworddict = pword()
-    probability = {}
     with open('submission16new.csv', 'a') as submission:
         #submission.write(','.join(['"Id"', '"Tags"']) + "\n")
         #index words in wordgroups, min(start) is 6034196
         id = start + 6034196
         for words in wordgroups[start:end]:
-            probability[id] = {}
             maxtags = ['', '', '', '', '']
             maxbayesratio = [0.0, 0.0, 0.0, 0.0, 0.0]
             for tag in tags:
@@ -91,7 +89,6 @@ def bayes(tags, wordgroups, start, end):
                     bayesprob = 0
                 else:
                     bayesprob = math.pow(priortag, 1.6)*posterior
-                probability[id][tag] = bayesprob
                 #if it's less than the last (least) element, doesn't belong in the list
                 if bayesprob < maxbayesratio[-1]:
                     continue
