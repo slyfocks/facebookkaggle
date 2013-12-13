@@ -70,14 +70,14 @@ def bayes(tags, wordgroups, start, end):
     ptagdict = ptag(tags)
     pworddict = pword()
     probability = {}
-    with open('submission11.csv', 'a') as submission:
+    with open('submission16new.csv', 'a') as submission:
         #submission.write(','.join(['"Id"', '"Tags"']) + "\n")
         #index words in wordgroups, min(start) is 6034196
         id = start + 6034196
         for words in wordgroups[start:end]:
             probability[id] = {}
-            maxtags = ['', '', '']
-            maxbayesratio = [0, 0, 0]
+            maxtags = ['', '', '', '', '']
+            maxbayesratio = [0, 0, 0, 0, 0]
             for tag in tags:
                 posterior = 1
                 priortag = ptagdict[tag]
@@ -90,21 +90,21 @@ def bayes(tags, wordgroups, start, end):
                 if posterior == 1:
                     bayesprob = 0
                 else:
-                    bayesprob = math.pow(priortag, 1.1)*posterior
+                    bayesprob = math.pow(priortag, 1.6)*posterior
                 probability[id][tag] = bayesprob
-                if bayesprob < maxbayesratio[2]:
+                #if it's less than the last (least) element, doesn't belong in the list
+                if bayesprob < maxbayesratio[-1]:
                     continue
                 #easier to read than elif in this case, in my opinion
+                elif bayesprob > maxbayesratio[0]:
+                    maxbayesratio = [bayesprob].extend(maxbayesratio[:4])
+                    maxtags = [tag].extend(maxtags[:1])
                 else:
-                    if bayesprob > maxbayesratio[0]:
-                        maxbayesratio = [bayesprob, maxbayesratio[0], maxbayesratio[1]]
-                        maxtags = [tag, maxtags[0], maxtags[1]]
-                    elif bayesprob > maxbayesratio[1]:
-                        maxbayesratio = [maxbayesratio[0], bayesprob, maxbayesratio[1]]
-                        maxtags = [maxtags[0], tag, maxtags[1]]
-                    else:
-                        maxbayesratio = [maxbayesratio[0], maxbayesratio[1], bayesprob]
-                        maxtags = [maxtags[0], maxtags[1], tag]
+                    for index in range(1, 4):
+                        if bayesprob > maxbayesratio[index]:
+                            maxbayesratio = maxbayesratio[0:index] + [bayesprob].extend(maxbayesratio[index:4])
+                            maxtags = maxtags[0:index] + [tag].extend(maxtags[index:4])
+                            break
             submission.write(','.join([str(id), "\""
                                       + ' '.join([str(tag) for tag in maxtags + maxbayesratio]) + "\""]) + "\n")
             id += 1
