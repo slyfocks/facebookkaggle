@@ -77,7 +77,7 @@ def bayes(tags, wordgroups, start, end):
         for words in wordgroups[start:end]:
             probability[id] = {}
             maxtags = ['', '', '', '', '']
-            maxbayesratio = [0, 0, 0, 0, 0]
+            maxbayesratio = [0.0, 0.0, 0.0, 0.0, 0.0]
             for tag in tags:
                 posterior = 1
                 priortag = ptagdict[tag]
@@ -96,14 +96,13 @@ def bayes(tags, wordgroups, start, end):
                 if bayesprob < maxbayesratio[-1]:
                     continue
                 #easier to read than elif in this case, in my opinion
-                elif bayesprob > maxbayesratio[0]:
-                    maxbayesratio = [bayesprob].extend(maxbayesratio[:4])
-                    maxtags = [tag].extend(maxtags[:1])
                 else:
-                    for index in range(1, 4):
+                    for index in range(4):
                         if bayesprob > maxbayesratio[index]:
-                            maxbayesratio = maxbayesratio[0:index] + [bayesprob].extend(maxbayesratio[index:4])
-                            maxtags = maxtags[0:index] + [tag].extend(maxtags[index:4])
+                            maxbayesratio.insert(index, bayesprob)
+                            del maxbayesratio[-1]
+                            maxtags.insert(index, tag)
+                            del maxtags[-1]
                             break
             submission.write(','.join([str(id), "\""
                                       + ' '.join([str(tag) for tag in maxtags + maxbayesratio]) + "\""]) + "\n")
