@@ -69,32 +69,32 @@ def bayes(tags, wordgroups, start, end):
     postdict = pwordgiventag(tags)
     ptagdict = ptag(tags)
     pworddict = pword()
-    with open('submission0new.csv', 'a') as submission:
+    with open('submission13entropy.csv', 'a') as submission:
         #submission.write(','.join(['"Id"', '"Tags"']) + "\n")
         #index words in wordgroups, min(start) is 6034196
         id = start + 6034196
         for words in wordgroups[start:end]:
-            maxtags = ['', '', '', '', '', '', '']
-            maxbayesratio = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+            maxtags = ['', '', '', '', '', '', '', '', '', '']
+            maxbayesratio = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
             for tag in tags:
-                posterior = 1
+                posterior = 0
                 priortag = ptagdict[tag]
                 for word in set(words):
                     try:
                         #updates posterior probability of words|tag naively
-                        posterior *= postdict[tag][word]/pworddict[word]
+                        posterior += -math.log(postdict[tag][word])*postdict[tag][word]/pworddict[word]
                     except KeyError:
                         continue
-                if posterior == 1:
+                if posterior == 0:
                     bayesprob = 0
                 else:
-                    bayesprob = posterior
+                    bayesprob = math.pow(priortag, 0.6)*posterior
                 #if it's less than the last (least) element, doesn't belong in the list
                 if bayesprob < maxbayesratio[-1]:
                     continue
                 #easier to read than elif in this case, in my opinion
                 else:
-                    for index in range(6):
+                    for index in range(9):
                         if bayesprob > maxbayesratio[index]:
                             maxbayesratio.insert(index, bayesprob)
                             del maxbayesratio[-1]
