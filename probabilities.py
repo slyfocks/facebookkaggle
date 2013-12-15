@@ -69,13 +69,13 @@ def bayes(tags, wordgroups, start, end):
     postdict = pwordgiventag(tags)
     ptagdict = ptag(tags)
     pworddict = pword()
-    with open('submission16new.csv', 'a') as submission:
+    with open('submission0new.csv', 'a') as submission:
         #submission.write(','.join(['"Id"', '"Tags"']) + "\n")
         #index words in wordgroups, min(start) is 6034196
         id = start + 6034196
         for words in wordgroups[start:end]:
-            maxtags = ['', '', '', '', '']
-            maxbayesratio = [0.0, 0.0, 0.0, 0.0, 0.0]
+            maxtags = ['', '', '', '', '', '', '']
+            maxbayesratio = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
             for tag in tags:
                 posterior = 1
                 priortag = ptagdict[tag]
@@ -88,13 +88,13 @@ def bayes(tags, wordgroups, start, end):
                 if posterior == 1:
                     bayesprob = 0
                 else:
-                    bayesprob = math.pow(priortag, 1.6)*posterior
+                    bayesprob = posterior
                 #if it's less than the last (least) element, doesn't belong in the list
                 if bayesprob < maxbayesratio[-1]:
                     continue
                 #easier to read than elif in this case, in my opinion
                 else:
-                    for index in range(4):
+                    for index in range(6):
                         if bayesprob > maxbayesratio[index]:
                             maxbayesratio.insert(index, bayesprob)
                             del maxbayesratio[-1]
@@ -104,7 +104,6 @@ def bayes(tags, wordgroups, start, end):
             submission.write(','.join([str(id), "\""
                                       + ' '.join([str(tag) for tag in maxtags + maxbayesratio]) + "\""]) + "\n")
             id += 1
-            print(id)
 
 
 '''if max(maxbayesratio) > bayesprob > min(maxbayesratio):
