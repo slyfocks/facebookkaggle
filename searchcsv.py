@@ -5,7 +5,6 @@ with open('tags.json') as file:
 freq_tags = [i.replace(',', '').replace('?', '').replace(';', '')
               .replace(':', '').replace('"', '') for i, j in data.items() if 10000 > j >= 3000]
 data_dict = {}
-print(len(freq_tags))
 with open('/home/buzzybee/facebookrecruit/Train.csv', newline='') as csvfile:
     filereader = csv.reader(csvfile)
     i = 0
