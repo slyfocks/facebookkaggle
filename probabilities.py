@@ -69,7 +69,7 @@ def bayes(tags, wordgroups, start, end):
     postdict = pwordgiventag(tags)
     ptagdict = ptag(tags)
     pworddict = pword()
-    with open('submission13entropy.csv', 'a') as submission:
+    with open('submission07entropy.csv', 'a') as submission:
         #submission.write(','.join(['"Id"', '"Tags"']) + "\n")
         #index words in wordgroups, min(start) is 6034196
         id = start + 6034196
@@ -88,7 +88,7 @@ def bayes(tags, wordgroups, start, end):
                 if posterior == 0:
                     bayesprob = 0
                 else:
-                    bayesprob = math.pow(priortag, 0.6)*posterior
+                    bayesprob = math.pow(priortag, 0.7)*posterior
                 #if it's less than the last (least) element, doesn't belong in the list
                 if bayesprob < maxbayesratio[-1]:
                     continue
@@ -104,11 +104,4 @@ def bayes(tags, wordgroups, start, end):
             submission.write(','.join([str(id), "\""
                                       + ' '.join([str(tag) for tag in maxtags + maxbayesratio]) + "\""]) + "\n")
             id += 1
-
-
-'''if max(maxbayesratio) > bayesprob > min(maxbayesratio):
-                maxbayesratio = [max(maxbayesratio), bayesprob]
-                maxtags = [maxtags[0], tag]
-            elif bayesprob > max(maxbayesratio):
-                maxbayesratio = [max(maxbayesratio), bayesprob]
-                maxtags = [tag, maxtags[0]]'''
+            print(id)
