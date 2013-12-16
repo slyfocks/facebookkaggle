@@ -3,7 +3,7 @@ import ujson
 with open('tags.json') as file:
     data = ujson.load(file)
 freq_tags = [i.replace(',', '').replace('?', '').replace(';', '')
-              .replace(':', '').replace('"', '') for i, j in data.items() if 10000 > j >= 3000]
+              .replace(':', '').replace('"', '') for i, j in data.items() if 400000 > j >= 100]
 data_dict = {}
 with open('/home/buzzybee/facebookrecruit/Train.csv', newline='') as csvfile:
     filereader = csv.reader(csvfile)
