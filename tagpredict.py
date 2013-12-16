@@ -34,8 +34,8 @@ def writetags():
         filedict = ujson.load(file)
         #makes sure wordgroups are in correct order because dictionaries are unordered
         wordgroups = [v for k, v in sorted(filedict.items())]
-        bayes(tag_list, wordgroups, 0, 100)
-#writetags()
+        bayes(tag_list, wordgroups, 1995316, 2013337)
+writetags()
 '''if __name__ == "__main__":
     with open('Test.csv') as csvfile:
         csvreader = csv.reader(csvfile)
@@ -52,7 +52,14 @@ def writetags():
                 words = set(str(row[2]).lower().replace('"', '')
                             .replace('.', '').replace(';', '').replace(',', '')
                             .replace('?', '').replace(';', '').replace(':', '').split())
-                worddict[row[0]] = [word for word in words if word not in stopwords and '<code>' in word]
+                worddict[row[0]] = len([word for word in words if word not in stopwords])
                 print(i)
-            with open('codewordgroup.json', 'w') as write:
+            with open('bodylength.json', 'w') as write:
                 ujson.dump(worddict, write)'''
+
+
+#updates probabilities based on code tags
+def code_adjustment():
+    with open('codewordgroup.json') as file:
+        codedata = ujson.load(file)
+        print(codedata)
