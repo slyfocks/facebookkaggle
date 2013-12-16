@@ -45,15 +45,15 @@ def cotags():
 
 
 def graph_probability():
-    with open('cotagsub16.csv', 'w') as writecsv:
+    with open('cotagsub07e.csv', 'w') as writecsv:
         cotagdict = cotags()
         #dict of tags and scores without considering co-occurrence probability of tags
         tagvalues = filtercsv.tags_values()
-        for id in range(6034196, 8047533):
+        for id in range(6034196, 6034295):
             tags = tagvalues[str(id)][0]
             scores = np.array(tagvalues[str(id)][1], np.float_)
-            #initialize 5x5 co-occurrence matrix
-            cotagmatrix = np.zeros((5, 5))
+            #initialize square co-occurrence matrix
+            cotagmatrix = np.zeros((10, 10))
             for i in range(len(tags)):
                 for j in range(len(tags)):
                     try:
@@ -61,8 +61,8 @@ def graph_probability():
                         cotagmatrix[i][j] = cotagdict[tags[i]][tags[j]]/cotagdict[tags[i]][tags[i]]
                     except KeyError:
                         cotagmatrix[i][j] = 0
-            #compute dot product of importance vector for tag with tag co-occurrence 5x5 matrix
-            matrix_product = np.inner(scores, cotagmatrix)
+            #compute dot product of importance vector for tag with tag co-occurrence 10x10 matrix
+            matrix_product = np.inner(scores, np.linalg.matrix_power(cotagmatrix, 1))
             tag_prob_pairs = list(zip(matrix_product, tags))
             #sort tags by updated score values
             sorted_scorestags = sorted(tag_prob_pairs, reverse=True)
