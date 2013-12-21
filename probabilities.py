@@ -57,7 +57,7 @@ def pword():
     return pworddict
 
 
-def pwordgiventag(tags):
+def pwordgiventag():
     with open('titlewordgiventag.json', 'r') as file:
         postprobs = ujson.load(file)
     return postprobs
@@ -66,16 +66,16 @@ def pwordgiventag(tags):
 #in the form of P(tags|words) where tags and wordgroups is a list of lists of words
 #doesn't give reasonable probabilities in absolute terms, but only relative probability matters here
 def bayes(tags, wordgroups, start, end):
-    postdict = pwordgiventag(tags)
+    postdict = pwordgiventag()
     ptagdict = ptag(tags)
     pworddict = pword()
-    with open('submission07entropy.csv', 'a') as submission:
+    with open('submission100entropy.csv', 'a') as submission:
         #submission.write(','.join(['"Id"', '"Tags"']) + "\n")
         #index words in wordgroups, min(start) is 6034196
         id = start + 6034196
         for words in wordgroups[start:end]:
-            maxtags = ['', '', '', '', '', '', '', '', '', '']
-            maxbayesratio = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+            maxtags = ['', '', '', '', '', '', '', '', '', '', '']
+            maxbayesratio = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
             for tag in tags:
                 posterior = 0
                 priortag = ptagdict[tag]
@@ -88,13 +88,13 @@ def bayes(tags, wordgroups, start, end):
                 if posterior == 0:
                     bayesprob = 0
                 else:
-                    bayesprob = math.pow(priortag, 0.7)*posterior
+                    bayesprob = math.pow(priortag, 1.2)*posterior
                 #if it's less than the last (least) element, doesn't belong in the list
                 if bayesprob < maxbayesratio[-1]:
                     continue
                 #easier to read than elif in this case, in my opinion
                 else:
-                    for index in range(9):
+                    for index in range(10):
                         if bayesprob > maxbayesratio[index]:
                             maxbayesratio.insert(index, bayesprob)
                             del maxbayesratio[-1]
@@ -104,4 +104,3 @@ def bayes(tags, wordgroups, start, end):
             submission.write(','.join([str(id), "\""
                                       + ' '.join([str(tag) for tag in maxtags + maxbayesratio]) + "\""]) + "\n")
             id += 1
-            print(id)
