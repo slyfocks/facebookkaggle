@@ -34,10 +34,6 @@ def writecotags():
                             data_dict[tag][cotag] = 1
 
 
-    with open('cotags.json', 'w') as file:
-        ujson.dump(data_dict, file)
-
-
 def cotags():
     with open('cotags.json') as file:
         cotagdict = ujson.load(file)
@@ -45,15 +41,15 @@ def cotags():
 
 
 def graph_probability():
-    with open('cotagsub07e.csv', 'w') as writecsv:
+    with open('cotagsub100e.csv', 'w') as writecsv:
         cotagdict = cotags()
         #dict of tags and scores without considering co-occurrence probability of tags
         tagvalues = filtercsv.tags_values()
-        for id in range(6034196, 6034295):
+        for id in range(6034196, 8047533):
             tags = tagvalues[str(id)][0]
             scores = np.array(tagvalues[str(id)][1], np.float_)
             #initialize square co-occurrence matrix
-            cotagmatrix = np.zeros((10, 10))
+            cotagmatrix = np.zeros((11, 11))
             for i in range(len(tags)):
                 for j in range(len(tags)):
                     try:
@@ -71,5 +67,3 @@ def graph_probability():
             writecsv.write(','.join([str(id), "\""
                                     + ' '.join(sorted_tags
                                                + [str(score) for score in sorted_scores]) + "\""]) + "\n")
-            print(id)
-graph_probability()
