@@ -29,11 +29,10 @@ def filter_csv():
                 chosentagdict2[row2[0]] = set(chosentags + chosentagdict[row2[0]])
                 writefile.write(','.join([str(row2[0]), "\""
                                           + ' '.join(chosentagdict2[row2[0]]) + "\""]) + "\n")
-                print(row2[0])
-filter_csv()
+
 
 def tags_values():
-    with open('submission07entropy.csv') as file:
+    with open('submission100entropy.csv') as file:
         tagdict = {}
         csvreader = csv.reader(file)
         for row in csvreader:
